@@ -88,7 +88,7 @@
 	
 	var _Playlist2 = _interopRequireDefault(_Playlist);
 	
-	var _LyricsContainer = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./containers/LyricsContainer\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _LyricsContainer = __webpack_require__(301);
 	
 	var _LyricsContainer2 = _interopRequireDefault(_LyricsContainer);
 	
@@ -30568,6 +30568,76 @@
 	    lyric: lyric
 	  };
 	};
+
+/***/ },
+/* 301 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _store = __webpack_require__(276);
+	
+	var _store2 = _interopRequireDefault(_store);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var LyricsContainer = function (_Component) {
+	  _inherits(LyricsContainer, _Component);
+	
+	  function LyricsContainer() {
+	    _classCallCheck(this, LyricsContainer);
+	
+	    var _this = _possibleConstructorReturn(this, (LyricsContainer.__proto__ || Object.getPrototypeOf(LyricsContainer)).call(this));
+	
+	    _this.state = _store2.default.getState();
+	    return _this;
+	  }
+	
+	  _createClass(LyricsContainer, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      var _this2 = this;
+	
+	      this.unsubscribe = _store2.default.subscribe(function () {
+	        _this2.setState(_store2.default.getState());
+	      });
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      this.unsubscribe();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'h1',
+	        null,
+	        'Just a container for now!'
+	      );
+	    }
+	  }]);
+	
+	  return LyricsContainer;
+	}(_react.Component);
+	
+	exports.default = LyricsContainer;
 
 /***/ }
 /******/ ]);
