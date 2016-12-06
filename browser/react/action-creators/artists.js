@@ -1,5 +1,6 @@
 import { convertAlbum, convertAlbums, convertSong, skip } from '../utils';
 import { RECEIVE_ARTISTS, RECEIVE_ARTIST } from '../constants.js';
+import axios from 'axios';
 
 export const receiveArtistsFromServer = (artists) => {
   return {
