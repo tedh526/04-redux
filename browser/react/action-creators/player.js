@@ -1,4 +1,5 @@
 import { START_PLAYING, STOP_PLAYING, SET_CURRENT_SONG, SET_LIST, SET_PROGRESS } from '../constants.js';
+import AUDIO from '../audio';
 
 export const startPlaying = () => ({type: START_PLAYING});
 
@@ -9,6 +10,7 @@ export const setCurrentSong = (currentSong) => ({type: SET_CURRENT_SONG, current
 export const setCurrentSongList = (currentSongList) => ({type: SET_LIST, currentSongList});
 
 export const setProgress = (progress) => ({type: SET_PROGRESS}, progress);
+
 
 export const play = () => dispatch => {
   AUDIO.play();
@@ -34,14 +36,15 @@ export const startSong = (song, list) => dispatch => {
 };
 
 export const toggle = () => (dispatch, getState) => {
-  const { isPlaying } = getState();
+  const { isPlaying } = getState().player;
   if (isPlaying) dispatch(pause()); 
   else dispatch(play());
 };
 
 export const toggleOne = (selectedSong, selectedSongList) => 
   (dispatch, getState) => {
-    const { currentSong } = getState();
+    const { currentSong } = getState().player;
+    console.log(getState())
     if (selectedSong.id !== currentSong.id)
       dispatch(startSong(selectedSong, selectedSongList));
     else dispatch(toggle());
@@ -49,10 +52,10 @@ export const toggleOne = (selectedSong, selectedSongList) =>
 
 export const next = () => 
   (dispatch, getState) => {
-    dispatch(startSong(...skip(1, getState()));
+    dispatch(startSong(...skip(1, getState())));
 };
 
 export const prev = () => 
   (dispatch, getState) => {
-    dispatch(startSong(...skip(-1, getState()));
+    dispatch(startSong(...skip(-1, getState())));
 };

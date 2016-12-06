@@ -3,7 +3,10 @@ import { Link } from 'react-router';
 
 class Artist extends React.Component {
 
+
   componentDidMount () {
+      console.log('props', this.props)
+    console.log('player', this.props.player)
     const artistId = this.props.routeParams.artistId;
     const selectArtist = this.props.selectArtist;
 
@@ -25,7 +28,7 @@ class Artist extends React.Component {
           <li><Link to={`/artists/${artist.id}/songs`}>SONGS</Link></li>
         </ul>
         {
-          children && React.cloneElement(children, Object.assign({}, this.props, {
+          children && React.cloneElement(children, Object.assign({}, this.props,this.props.player, {
             albums: albums,
             songs: songs
           }))
