@@ -88,6 +88,10 @@
 	
 	var _Playlist2 = _interopRequireDefault(_Playlist);
 	
+	var _LyricsContainer = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./containers/LyricsContainer\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	
+	var _LyricsContainer2 = _interopRequireDefault(_LyricsContainer);
+	
 	var _store = __webpack_require__(276);
 	
 	var _store2 = _interopRequireDefault(_store);
@@ -28576,6 +28580,19 @@
 	        )
 	      )
 	    ),
+	    _react2.default.createElement(
+	      'section',
+	      null,
+	      _react2.default.createElement(
+	        'h4',
+	        { className: 'menu-item' },
+	        _react2.default.createElement(
+	          _reactRouter.Link,
+	          { to: '/lyrics' },
+	          'LYRICS'
+	        )
+	      )
+	    ),
 	    _react2.default.createElement('hr', null),
 	    _react2.default.createElement(
 	      'section',
@@ -29454,7 +29471,11 @@
 	
 	var _rootReducer = __webpack_require__(298);
 	
-	exports.default = (0, _redux.createStore)(_rootReducer.reducer);
+	var _rootReducer2 = _interopRequireDefault(_rootReducer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = (0, _redux.createStore)(_rootReducer2.default);
 
 /***/ },
 /* 277 */
@@ -30498,13 +30519,12 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.reducer = undefined;
 	
 	var _constants = __webpack_require__(299);
 	
 	var initialState = { text: '' };
 	
-	var reducer = exports.reducer = function reducer() {
+	exports.default = function () {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
 	  var action = arguments[1];
 	
