@@ -10,13 +10,20 @@ import Album from '../components/Album';
 import Sidebar from '../components/Sidebar';
 import Player from '../components/Player';
 
+import store from '../store';
+import { play, pause, load, startSong, toggle, toggleOne, next, prev } from '../action-creators/player.js';
+
+
 import { convertAlbum, convertAlbums, convertSong, skip } from '../utils';
 
 export default class AppContainer extends Component {
 
   constructor (props) {
     super(props);
-    this.state = initialState;
+    this.state = Object.assign(
+      initialState,
+      store.getState()
+    );
 
     this.toggle = this.toggle.bind(this);
     this.toggleOne = this.toggleOne.bind(this);
@@ -45,6 +52,14 @@ export default class AppContainer extends Component {
       this.next());
     AUDIO.addEventListener('timeupdate', () =>
       this.setProgress(AUDIO.currentTime / AUDIO.duration));
+
+    this.unsubscribe = store.subscribe(() => {
+      this.setState(store.getState());
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   onLoad (albums, artists, playlists) {
