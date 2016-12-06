@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import store from '../store';
 import Lyrics from '../components/Lyrics'
 import {fetchLyrics} from '../action-creators/lyrics';
-import axios from 'axios';
+
 
 export default class extends Component {
 
