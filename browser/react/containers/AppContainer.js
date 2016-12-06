@@ -11,8 +11,9 @@ import Sidebar from '../components/Sidebar';
 import Player from '../components/Player';
 
 import store from '../store';
+import { fetchAlbumsFromServer, fetchAlbumFromServer } from '../action-creators/albums.js';
+import { fetchArtistsFromServer, fetchArtistFromServer } from '../action-creators/artists.js';
 import { play, pause, load, startSong, toggle, toggleOne, next, prev } from '../action-creators/player.js';
-
 
 import { convertAlbum, convertAlbums, convertSong, skip } from '../utils';
 
@@ -107,11 +108,7 @@ export default class AppContainer extends Component {
   }
 
   selectAlbum (albumId) {
-    axios.get(`/api/albums/${albumId}`)
-      .then(res => res.data)
-      .then(album => this.setState({
-        selectedAlbum: convertAlbum(album)
-      }));
+   store.dispatch(fetchAlbumFromServer(albumId))
   }
 
   selectArtist (artistId) {

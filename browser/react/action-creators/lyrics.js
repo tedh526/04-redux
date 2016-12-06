@@ -22,14 +22,6 @@ export const fetchLyrics = function (artist, song) {
 
 /* BUT WAIT THERE'S MORE! (may be helpful later on!) */
 
-const fetchAlbumsFromServer =() => {
-  return dispatch => {
-    axios.get('/api/albums')
-      .then(res => res.data)
-      // use the dispatch method the thunkMiddleware gave us
-      .then(albums => dispatch(receiveAlbumsFromServer(albums))); 
-  }
-}
 
 const playSong = songId => {
   return dispatch => {
