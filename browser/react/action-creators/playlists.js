@@ -14,7 +14,7 @@ export const receivePlaylistFromServer = (playlist) => {
   playlist.songs = playlist.songs.map(convertSong);
   return {
     type: RECEIVE_PLAYLIST,
-    playlist: playlist
+    selectedPlaylist: playlist
   };
 };
 

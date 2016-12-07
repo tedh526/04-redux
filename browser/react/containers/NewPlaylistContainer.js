@@ -22,7 +22,7 @@ class FormContainer extends React.Component {
   }
 
   handleSubmit (evt) {
-    evt.preventDefault();
+    // evt.preventDefault();
 
     const addPlaylist = this.props.addPlaylist;
     addPlaylist(this.state.inputValue);

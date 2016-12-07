@@ -68,11 +68,11 @@
 	
 	var _Album2 = _interopRequireDefault(_Album);
 	
-	var _FilterableArtistsContainer = __webpack_require__(300);
+	var _FilterableArtistsContainer = __webpack_require__(308);
 	
 	var _FilterableArtistsContainer2 = _interopRequireDefault(_FilterableArtistsContainer);
 	
-	var _Artist = __webpack_require__(303);
+	var _Artist = __webpack_require__(311);
 	
 	var _Artist2 = _interopRequireDefault(_Artist);
 	
@@ -80,15 +80,15 @@
 	
 	var _Songs2 = _interopRequireDefault(_Songs);
 	
-	var _NewPlaylistContainer = __webpack_require__(304);
+	var _NewPlaylistContainer = __webpack_require__(312);
 	
 	var _NewPlaylistContainer2 = _interopRequireDefault(_NewPlaylistContainer);
 	
-	var _Playlist = __webpack_require__(306);
+	var _Playlist = __webpack_require__(314);
 	
 	var _Playlist2 = _interopRequireDefault(_Playlist);
 	
-	var _LyricsContainer = __webpack_require__(309);
+	var _LyricsContainer = __webpack_require__(317);
 	
 	var _LyricsContainer2 = _interopRequireDefault(_LyricsContainer);
 	
@@ -26478,9 +26478,17 @@
 	
 	var _store2 = _interopRequireDefault(_store);
 	
-	var _player = __webpack_require__(298);
+	var _albums = __webpack_require__(302);
 	
-	var _utils = __webpack_require__(299);
+	var _artists = __webpack_require__(304);
+	
+	var _playlists = __webpack_require__(305);
+	
+	var _songs = __webpack_require__(306);
+	
+	var _player = __webpack_require__(307);
+	
+	var _utils = __webpack_require__(303);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -26500,7 +26508,7 @@
 	
 	    var _this = _possibleConstructorReturn(this, (AppContainer.__proto__ || Object.getPrototypeOf(AppContainer)).call(this, props));
 	
-	    _this.state = Object.assign(_initialState2.default, _store2.default.getState());
+	    _this.state = Object.assign(_initialState2.default, _store2.default.getState(), _store2.default.getState().albumsState, _store2.default.getState().artistsState, _store2.default.getState().playlistsState, _store2.default.getState().songsState);
 	
 	    _this.toggle = _this.toggle.bind(_this);
 	    _this.toggleOne = _this.toggleOne.bind(_this);
@@ -26520,13 +26528,9 @@
 	    value: function componentDidMount() {
 	      var _this2 = this;
 	
-	      Promise.all([_axios2.default.get('/api/albums/'), _axios2.default.get('/api/artists/'), _axios2.default.get('/api/playlists')]).then(function (res) {
-	        return res.map(function (r) {
-	          return r.data;
-	        });
-	      }).then(function (data) {
-	        return _this2.onLoad.apply(_this2, _toConsumableArray(data));
-	      });
+	      _store2.default.dispatch((0, _albums.fetchAlbumsFromServer)());
+	      _store2.default.dispatch((0, _artists.fetchArtistsFromServer)());
+	      _store2.default.dispatch((0, _playlists.selectPlaylists)());
 	
 	      _audio2.default.addEventListener('ended', function () {
 	        return _this2.next();
@@ -26536,22 +26540,13 @@
 	      });
 	
 	      this.unsubscribe = _store2.default.subscribe(function () {
-	        _this2.setState(_store2.default.getState());
+	        _this2.setState(Object.assign(_initialState2.default, _store2.default.getState(), _store2.default.getState().albumsState, _store2.default.getState().artistsState, _store2.default.getState().playlistsState, _store2.default.getState().songsState));
 	      });
 	    }
 	  }, {
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
 	      this.unsubscribe();
-	    }
-	  }, {
-	    key: 'onLoad',
-	    value: function onLoad(albums, artists, playlists) {
-	      this.setState({
-	        albums: (0, _utils.convertAlbums)(albums),
-	        artists: artists,
-	        playlists: playlists
-	      });
 	    }
 	  }, {
 	    key: 'play',
@@ -26601,49 +26596,23 @@
 	  }, {
 	    key: 'selectAlbum',
 	    value: function selectAlbum(albumId) {
-	      var _this3 = this;
-	
-	      _axios2.default.get('/api/albums/' + albumId).then(function (res) {
-	        return res.data;
-	      }).then(function (album) {
-	        return _this3.setState({
-	          selectedAlbum: (0, _utils.convertAlbum)(album)
-	        });
-	      });
+	      _store2.default.dispatch((0, _albums.fetchAlbumFromServer)(albumId));
 	    }
 	  }, {
 	    key: 'selectArtist',
 	    value: function selectArtist(artistId) {
-	      var _this4 = this;
-	
-	      Promise.all([_axios2.default.get('/api/artists/' + artistId), _axios2.default.get('/api/artists/' + artistId + '/albums'), _axios2.default.get('/api/artists/' + artistId + '/songs')]).then(function (res) {
-	        return res.map(function (r) {
-	          return r.data;
-	        });
-	      }).then(function (data) {
-	        return _this4.onLoadArtist.apply(_this4, _toConsumableArray(data));
-	      });
-	    }
-	  }, {
-	    key: 'onLoadArtist',
-	    value: function onLoadArtist(artist, albums, songs) {
-	      songs = songs.map(_utils.convertSong);
-	      albums = (0, _utils.convertAlbums)(albums);
-	      artist.albums = albums;
-	      artist.songs = songs;
-	
-	      this.setState({ selectedArtist: artist });
+	      _store2.default.dispatch((0, _artists.fetchArtistFromServer)(artistId));
 	    }
 	  }, {
 	    key: 'addPlaylist',
 	    value: function addPlaylist(playlistName) {
-	      var _this5 = this;
+	      var _this3 = this;
 	
 	      _axios2.default.post('/api/playlists', { name: playlistName }).then(function (res) {
 	        return res.data;
 	      }).then(function (playlist) {
-	        _this5.setState({
-	          playlists: [].concat(_toConsumableArray(_this5.state.playlists), [playlist])
+	        _this3.setState({
+	          playlists: [].concat(_toConsumableArray(_this3.state.playlists), [playlist])
 	        }, function () {
 	          _reactRouter.hashHistory.push('/playlists/' + playlist.id);
 	        });
@@ -26652,48 +26621,31 @@
 	  }, {
 	    key: 'selectPlaylist',
 	    value: function selectPlaylist(playlistId) {
-	      var _this6 = this;
-	
-	      _axios2.default.get('/api/playlists/' + playlistId).then(function (res) {
-	        return res.data;
-	      }).then(function (playlist) {
-	        playlist.songs = playlist.songs.map(_utils.convertSong);
-	        _this6.setState({
-	          selectedPlaylist: playlist
-	        });
-	      });
+	      _store2.default.dispatch((0, _playlists.selectPlaylist)(playlistId));
 	    }
 	  }, {
 	    key: 'loadSongs',
 	    value: function loadSongs(songs) {
-	      var _this7 = this;
-	
-	      _axios2.default.get('/api/songs').then(function (res) {
-	        return res.data;
-	      }).then(function (songs) {
-	        _this7.setState({
-	          songs: songs
-	        });
-	      });
+	      _store2.default.dispatch((0, _songs.loadSongs)(songs));
 	    }
 	  }, {
 	    key: 'addSongToPlaylist',
 	    value: function addSongToPlaylist(playlistId, songId) {
-	      var _this8 = this;
+	      var _this4 = this;
 	
 	      return _axios2.default.post('/api/playlists/' + playlistId + '/songs', {
 	        id: songId
 	      }).then(function (res) {
 	        return res.data;
 	      }).then(function (song) {
-	        var selectedPlaylist = _this8.state.selectedPlaylist;
-	        var songs = _this8.state.selectedPlaylist.songs;
+	        var selectedPlaylist = _this4.state.selectedPlaylist;
+	        var songs = _this4.state.selectedPlaylist.songs;
 	        var newSongs = [].concat(_toConsumableArray(songs), [(0, _utils.convertSong)(song)]);
 	        var newSelectedPlaylist = Object.assign({}, selectedPlaylist, {
 	          songs: newSongs
 	        });
 	
-	        _this8.setState({
+	        _this4.setState({
 	          selectedPlaylist: newSelectedPlaylist
 	        });
 	      });
@@ -28243,13 +28195,7 @@
 	  value: true
 	});
 	var initialState = {
-	  albums: [],
-	  artists: [],
-	  selectedAlbum: {},
-	  selectedArtist: {},
-	  playlists: [],
-	  selectedPlaylist: {},
-	  songs: []
+	  currentSong: {}
 	};
 	
 	exports.default = initialState;
@@ -28705,11 +28651,27 @@
 	
 	var _playerReducer2 = _interopRequireDefault(_playerReducer);
 	
-	var _reduxLogger = __webpack_require__(291);
+	var _albumsReducer = __webpack_require__(291);
+	
+	var _albumsReducer2 = _interopRequireDefault(_albumsReducer);
+	
+	var _artistsReducer = __webpack_require__(292);
+	
+	var _artistsReducer2 = _interopRequireDefault(_artistsReducer);
+	
+	var _songsReducer = __webpack_require__(293);
+	
+	var _songsReducer2 = _interopRequireDefault(_songsReducer);
+	
+	var _playlistsReducer = __webpack_require__(294);
+	
+	var _playlistsReducer2 = _interopRequireDefault(_playlistsReducer);
+	
+	var _reduxLogger = __webpack_require__(295);
 	
 	var _reduxLogger2 = _interopRequireDefault(_reduxLogger);
 	
-	var _reduxThunk = __webpack_require__(297);
+	var _reduxThunk = __webpack_require__(301);
 	
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 	
@@ -28721,7 +28683,11 @@
 	
 	var reducer = (0, _redux.combineReducers)({
 	  lyrics: _lyricsReducer2.default,
-	  player: _playerReducer2.default
+	  player: _playerReducer2.default,
+	  albumsState: _albumsReducer2.default,
+	  artistsState: _artistsReducer2.default,
+	  playlistsState: _playlistsReducer2.default,
+	  songsState: _songsReducer2.default
 	});
 	
 	exports.default = (0, _redux.createStore)(reducer, middleWare);
@@ -29798,14 +29764,17 @@
 	});
 	// ******Lyrics******
 	var SET_LYRICS = exports.SET_LYRICS = 'SET_LYRICS';
+	//done
 	
 	// Albums
 	var RECEIVE_ALBUMS = exports.RECEIVE_ALBUMS = 'RECEIVE_ALBUMS';
 	var RECEIVE_ALBUM = exports.RECEIVE_ALBUM = 'RECEIVE_ALBUM';
+	// done but need to do Appcontainer
 	
 	// Artists
 	var RECEIVE_ARTISTS = exports.RECEIVE_ARTISTS = 'RECEIVE_ARTISTS';
 	var RECEIVE_ARTIST = exports.RECEIVE_ARTIST = 'RECEIVE_ARTIST';
+	//done but need to do AppContainer
 	
 	// Playlists
 	var RECEIVE_PLAYLISTS = exports.RECEIVE_PLAYLISTS = 'RECEIVE_PLAYLISTS';
@@ -29820,6 +29789,7 @@
 	var SET_CURRENT_SONG = exports.SET_CURRENT_SONG = 'SET_CURRENT_SONG';
 	var SET_LIST = exports.SET_LIST = 'SET_LIST';
 	var SET_PROGRESS = exports.SET_PROGRESS = 'SET_PROGRESS';
+	//done
 
 /***/ },
 /* 290 */
@@ -29884,17 +29854,184 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.initialPlayerState = undefined;
+	
+	exports.default = function () {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialPlayerState;
+	  var action = arguments[1];
+	
+	
+	  var newState = Object.assign({}, state);
+	
+	  switch (action.type) {
+	
+	    case _constants.RECEIVE_ALBUMS:
+	      newState.albums = action.albums;
+	      break;
+	
+	    case _constants.RECEIVE_ALBUM:
+	      newState.selectedAlbum = action.selectedAlbum;
+	      break;
+	
+	    default:
+	      return state;
+	
+	  }
+	
+	  return newState;
+	};
+	
+	var _constants = __webpack_require__(289);
+	
+	var initialPlayerState = exports.initialPlayerState = {
+	  albums: [],
+	  selectedAlbum: {}
+	};
+
+/***/ },
+/* 292 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.initialPlayerState = undefined;
+	
+	exports.default = function () {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialPlayerState;
+	  var action = arguments[1];
+	
+	
+	  var newState = Object.assign({}, state);
+	
+	  switch (action.type) {
+	
+	    case _constants.RECEIVE_ARTISTS:
+	      newState.artists = action.artists;
+	      break;
+	
+	    case _constants.RECEIVE_ARTIST:
+	      newState.selectedArtist = action.selectedArtist;
+	      break;
+	
+	    default:
+	      return state;
+	
+	  }
+	
+	  return newState;
+	};
+	
+	var _constants = __webpack_require__(289);
+	
+	var initialPlayerState = exports.initialPlayerState = {
+	  artists: [],
+	  selectedArtist: {}
+	};
+
+/***/ },
+/* 293 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.initialPlayerState = undefined;
+	
+	exports.default = function () {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialPlayerState;
+	  var action = arguments[1];
+	
+	
+	  var newState = Object.assign({}, state);
+	
+	  switch (action.type) {
+	
+	    case _constants.RECEIVE_SONGS:
+	      newState.songs = action.songs;
+	      break;
+	
+	    default:
+	      return state;
+	
+	  }
+	
+	  return newState;
+	};
+	
+	var _constants = __webpack_require__(289);
+	
+	var initialPlayerState = exports.initialPlayerState = {
+	  songs: []
+	};
+
+/***/ },
+/* 294 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.initialPlayerState = undefined;
+	
+	exports.default = function () {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialPlayerState;
+	  var action = arguments[1];
+	
+	
+	  var newState = Object.assign({}, state);
+	
+	  switch (action.type) {
+	
+	    case _constants.RECEIVE_PLAYLISTS:
+	      newState.playlists = action.playlists;
+	      break;
+	
+	    case _constants.RECEIVE_PLAYLIST:
+	      newState.selectedPlaylist = action.selectedPlaylist;
+	      break;
+	
+	    default:
+	      return state;
+	
+	  }
+	
+	  return newState;
+	};
+	
+	var _constants = __webpack_require__(289);
+	
+	var initialPlayerState = exports.initialPlayerState = {
+	  playlists: [],
+	  selectedPlaylist: {}
+	};
+
+/***/ },
+/* 295 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 	
-	var _core = __webpack_require__(292);
+	var _core = __webpack_require__(296);
 	
-	var _helpers = __webpack_require__(293);
+	var _helpers = __webpack_require__(297);
 	
-	var _defaults = __webpack_require__(296);
+	var _defaults = __webpack_require__(300);
 	
 	var _defaults2 = _interopRequireDefault(_defaults);
 	
@@ -29997,7 +30134,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 292 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30007,9 +30144,9 @@
 	});
 	exports.printBuffer = printBuffer;
 	
-	var _helpers = __webpack_require__(293);
+	var _helpers = __webpack_require__(297);
 	
-	var _diff = __webpack_require__(294);
+	var _diff = __webpack_require__(298);
 	
 	var _diff2 = _interopRequireDefault(_diff);
 	
@@ -30138,7 +30275,7 @@
 	}
 
 /***/ },
-/* 293 */
+/* 297 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -30162,7 +30299,7 @@
 	var timer = exports.timer = typeof performance !== "undefined" && performance !== null && typeof performance.now === "function" ? performance : Date;
 
 /***/ },
-/* 294 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30172,7 +30309,7 @@
 	});
 	exports.default = diffLogger;
 	
-	var _deepDiff = __webpack_require__(295);
+	var _deepDiff = __webpack_require__(299);
 	
 	var _deepDiff2 = _interopRequireDefault(_deepDiff);
 	
@@ -30258,7 +30395,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 295 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global) {/*!
@@ -30687,7 +30824,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 296 */
+/* 300 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -30738,7 +30875,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 297 */
+/* 301 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30766,7 +30903,266 @@
 	exports['default'] = thunk;
 
 /***/ },
-/* 298 */
+/* 302 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.fetchAlbumFromServer = exports.fetchAlbumsFromServer = exports.receiveAlbumFromServer = exports.receiveAlbumsFromServer = undefined;
+	
+	var _utils = __webpack_require__(303);
+	
+	var _constants = __webpack_require__(289);
+	
+	var _axios = __webpack_require__(234);
+	
+	var _axios2 = _interopRequireDefault(_axios);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var receiveAlbumsFromServer = exports.receiveAlbumsFromServer = function receiveAlbumsFromServer(albums) {
+	
+	  return {
+	    type: _constants.RECEIVE_ALBUMS,
+	    albums: (0, _utils.convertAlbums)(albums)
+	  };
+	};
+	
+	var receiveAlbumFromServer = exports.receiveAlbumFromServer = function receiveAlbumFromServer(album) {
+	  return {
+	    type: _constants.RECEIVE_ALBUM,
+	    selectedAlbum: (0, _utils.convertAlbum)(album)
+	  };
+	};
+	
+	var fetchAlbumsFromServer = exports.fetchAlbumsFromServer = function fetchAlbumsFromServer() {
+	  return function (dispatch) {
+	    _axios2.default.get('/api/albums').then(function (res) {
+	      return res.data;
+	    })
+	    // use the dispatch method the thunkMiddleware gave us
+	    .then(function (albums) {
+	      return dispatch(receiveAlbumsFromServer(albums));
+	    });
+	  };
+	};
+	
+	var fetchAlbumFromServer = exports.fetchAlbumFromServer = function fetchAlbumFromServer(albumId) {
+	  return function (dispatch) {
+	    _axios2.default.get('/api/albums/' + albumId).then(function (res) {
+	      return res.data;
+	    })
+	    // use the dispatch method the thunkMiddleware gave us
+	    .then(function (album) {
+	      return dispatch(receiveAlbumFromServer(album));
+	    });
+	  };
+	};
+
+/***/ },
+/* 303 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var convertSong = exports.convertSong = function convertSong(song) {
+	  song.audioUrl = "/api/songs/" + song.id + "/audio";
+	  return song;
+	};
+	
+	var convertAlbum = exports.convertAlbum = function convertAlbum(album) {
+	  album.imageUrl = "/api/albums/" + album.id + "/image";
+	  album.songs = album.songs.map(convertSong);
+	  return album;
+	};
+	
+	var convertAlbums = exports.convertAlbums = function convertAlbums(albums) {
+	  return albums.map(function (album) {
+	    return convertAlbum(album);
+	  });
+	};
+	
+	var mod = function mod(num, m) {
+	  return (num % m + m) % m;
+	};
+	
+	var skip = exports.skip = function skip(interval, _ref) {
+	  var currentSongList = _ref.currentSongList,
+	      currentSong = _ref.currentSong;
+	
+	  var idx = currentSongList.map(function (song) {
+	    return song.id;
+	  }).indexOf(currentSong.id);
+	  idx = mod(idx + interval, currentSongList.length);
+	  var next = currentSongList[idx];
+	  return [next, currentSongList];
+	};
+
+/***/ },
+/* 304 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.fetchArtistFromServer = exports.fetchArtistsFromServer = exports.receiveArtistFromServer = exports.receiveArtistsFromServer = undefined;
+	
+	var _utils = __webpack_require__(303);
+	
+	var _constants = __webpack_require__(289);
+	
+	var _axios = __webpack_require__(234);
+	
+	var _axios2 = _interopRequireDefault(_axios);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	var receiveArtistsFromServer = exports.receiveArtistsFromServer = function receiveArtistsFromServer(artists) {
+	  return {
+	    type: _constants.RECEIVE_ARTISTS,
+	    artists: artists
+	  };
+	};
+	
+	var receiveArtistFromServer = exports.receiveArtistFromServer = function receiveArtistFromServer(artist, albums, songs) {
+	  artist.albums = (0, _utils.convertAlbums)(albums);
+	  artist.songs = songs.map(_utils.convertSong);
+	  return {
+	    type: _constants.RECEIVE_ARTIST,
+	    selectedArtist: artist
+	  };
+	};
+	
+	var fetchArtistsFromServer = exports.fetchArtistsFromServer = function fetchArtistsFromServer() {
+	  return function (dispatch) {
+	    _axios2.default.get('/api/artists/').then(function (res) {
+	      return res.data;
+	    })
+	    // use the dispatch method the thunkMiddleware gave us
+	    .then(function (artists) {
+	      return dispatch(receiveArtistsFromServer(artists));
+	    });
+	  };
+	};
+	
+	var fetchArtistFromServer = exports.fetchArtistFromServer = function fetchArtistFromServer(artistId) {
+	  return function (dispatch) {
+	    Promise.all([_axios2.default.get('/api/artists/' + artistId), _axios2.default.get('/api/artists/' + artistId + '/albums'), _axios2.default.get('/api/artists/' + artistId + '/songs')]).then(function (res) {
+	      return res.map(function (r) {
+	        return r.data;
+	      });
+	    }).then(function (data) {
+	      return dispatch(receiveArtistFromServer.apply(undefined, _toConsumableArray(data)));
+	    });
+	  };
+	};
+
+/***/ },
+/* 305 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.selectPlaylists = exports.selectPlaylist = exports.receivePlaylistFromServer = exports.receivePlaylistsFromServer = undefined;
+	
+	var _constants = __webpack_require__(289);
+	
+	var _axios = __webpack_require__(234);
+	
+	var _axios2 = _interopRequireDefault(_axios);
+	
+	var _utils = __webpack_require__(303);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var receivePlaylistsFromServer = exports.receivePlaylistsFromServer = function receivePlaylistsFromServer(playlists) {
+	  return {
+	    type: _constants.RECEIVE_PLAYLISTS,
+	    playlists: playlists
+	  };
+	};
+	
+	var receivePlaylistFromServer = exports.receivePlaylistFromServer = function receivePlaylistFromServer(playlist) {
+	  playlist.songs = playlist.songs.map(_utils.convertSong);
+	  return {
+	    type: _constants.RECEIVE_PLAYLIST,
+	    selectedPlaylist: playlist
+	  };
+	};
+	
+	var selectPlaylist = exports.selectPlaylist = function selectPlaylist(playlistId) {
+	  return function (dispatch) {
+	    _axios2.default.get('/api/playlists/' + playlistId).then(function (res) {
+	      return res.data;
+	    }).then(function (playlist) {
+	      return dispatch(receivePlaylistFromServer(playlist));
+	    });
+	  };
+	};
+	
+	var selectPlaylists = exports.selectPlaylists = function selectPlaylists() {
+	  return function (dispatch) {
+	    _axios2.default.get('/api/playlists/').then(function (res) {
+	      return res.data;
+	    }).then(function (playlists) {
+	      return dispatch(receivePlaylistsFromServer(playlists));
+	    });
+	  };
+	};
+
+/***/ },
+/* 306 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.loadSongs = exports.dumbSongs = undefined;
+	
+	var _constants = __webpack_require__(289);
+	
+	var _axios = __webpack_require__(234);
+	
+	var _axios2 = _interopRequireDefault(_axios);
+	
+	var _utils = __webpack_require__(303);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var dumbSongs = exports.dumbSongs = function dumbSongs(songs) {
+	  return {
+	    type: _constants.RECEIVE_SONGS,
+	    songs: songs.map(_utils.convertSong)
+	  };
+	};
+	
+	var loadSongs = exports.loadSongs = function loadSongs() {
+	  return function (dispatch) {
+	    _axios2.default.get('/api/songs').then(function (res) {
+	      return res.data;
+	    }).then(function (songs) {
+	      return dispatch(dumbSongs(songs));
+	    });
+	  };
+	};
+
+/***/ },
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30867,49 +31263,7 @@
 	};
 
 /***/ },
-/* 299 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var convertSong = exports.convertSong = function convertSong(song) {
-	  song.audioUrl = "/api/songs/" + song.id + "/audio";
-	  return song;
-	};
-	
-	var convertAlbum = exports.convertAlbum = function convertAlbum(album) {
-	  album.imageUrl = "/api/albums/" + album.id + "/image";
-	  album.songs = album.songs.map(convertSong);
-	  return album;
-	};
-	
-	var convertAlbums = exports.convertAlbums = function convertAlbums(albums) {
-	  return albums.map(function (album) {
-	    return convertAlbum(album);
-	  });
-	};
-	
-	var mod = function mod(num, m) {
-	  return (num % m + m) % m;
-	};
-	
-	var skip = exports.skip = function skip(interval, _ref) {
-	  var currentSongList = _ref.currentSongList,
-	      currentSong = _ref.currentSong;
-	
-	  var idx = currentSongList.map(function (song) {
-	    return song.id;
-	  }).indexOf(currentSong.id);
-	  idx = mod(idx + interval, currentSongList.length);
-	  var next = currentSongList[idx];
-	  return [next, currentSongList];
-	};
-
-/***/ },
-/* 300 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30924,11 +31278,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _FilterInput = __webpack_require__(301);
+	var _FilterInput = __webpack_require__(309);
 	
 	var _FilterInput2 = _interopRequireDefault(_FilterInput);
 	
-	var _Artists = __webpack_require__(302);
+	var _Artists = __webpack_require__(310);
 	
 	var _Artists2 = _interopRequireDefault(_Artists);
 	
@@ -30990,7 +31344,7 @@
 	exports.default = FilterableArtistsContainer;
 
 /***/ },
-/* 301 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31025,7 +31379,7 @@
 	exports.default = FilterInput;
 
 /***/ },
-/* 302 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31075,7 +31429,7 @@
 	exports.default = Artists;
 
 /***/ },
-/* 303 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31172,7 +31526,7 @@
 	exports.default = Artist;
 
 /***/ },
-/* 304 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31187,7 +31541,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _NewPlaylist = __webpack_require__(305);
+	var _NewPlaylist = __webpack_require__(313);
 	
 	var _NewPlaylist2 = _interopRequireDefault(_NewPlaylist);
 	
@@ -31228,7 +31582,7 @@
 	  }, {
 	    key: 'handleSubmit',
 	    value: function handleSubmit(evt) {
-	      evt.preventDefault();
+	      // evt.preventDefault();
 	
 	      var addPlaylist = this.props.addPlaylist;
 	      addPlaylist(this.state.inputValue);
@@ -31261,7 +31615,7 @@
 	exports.default = FormContainer;
 
 /***/ },
-/* 305 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31345,7 +31699,7 @@
 	exports.default = NewPlaylist;
 
 /***/ },
-/* 306 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31366,7 +31720,7 @@
 	
 	var _Songs2 = _interopRequireDefault(_Songs);
 	
-	var _AddSongContainer = __webpack_require__(307);
+	var _AddSongContainer = __webpack_require__(315);
 	
 	var _AddSongContainer2 = _interopRequireDefault(_AddSongContainer);
 	
@@ -31434,7 +31788,7 @@
 	exports.default = Playlist;
 
 /***/ },
-/* 307 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31455,7 +31809,7 @@
 	
 	var _axios2 = _interopRequireDefault(_axios);
 	
-	var _AddSong = __webpack_require__(308);
+	var _AddSong = __webpack_require__(316);
 	
 	var _AddSong2 = _interopRequireDefault(_AddSong);
 	
@@ -31532,7 +31886,7 @@
 	exports.default = AddSongContainer;
 
 /***/ },
-/* 308 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31626,7 +31980,7 @@
 	exports.default = AddSong;
 
 /***/ },
-/* 309 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31645,11 +31999,11 @@
 	
 	var _store2 = _interopRequireDefault(_store);
 	
-	var _Lyrics = __webpack_require__(310);
+	var _Lyrics = __webpack_require__(318);
 	
 	var _Lyrics2 = _interopRequireDefault(_Lyrics);
 	
-	var _lyrics = __webpack_require__(311);
+	var _lyrics = __webpack_require__(319);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -31731,7 +32085,7 @@
 	exports.default = _class;
 
 /***/ },
-/* 310 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -31783,7 +32137,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ },
-/* 311 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31817,18 +32171,6 @@
 	};
 	
 	/* BUT WAIT THERE'S MORE! (may be helpful later on!) */
-	
-	var fetchAlbumsFromServer = function fetchAlbumsFromServer() {
-	  return function (dispatch) {
-	    _axios2.default.get('/api/albums').then(function (res) {
-	      return res.data;
-	    })
-	    // use the dispatch method the thunkMiddleware gave us
-	    .then(function (albums) {
-	      return dispatch(receiveAlbumsFromServer(albums));
-	    });
-	  };
-	};
 	
 	var playSong = function playSong(songId) {
 	  return function (dispatch) {

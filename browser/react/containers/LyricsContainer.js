@@ -55,7 +55,7 @@ export default class extends Component {
       artistQuery={this.artistQuery}
       songQuery={this.songQuery}
       handleSubmit={this.handleSubmit}
-    />
+    />;
   }
 
 }

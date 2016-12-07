@@ -30,7 +30,7 @@ export const fetchArtistsFromServer =() => {
 }
 
 
-export const fetchAlbumFromServer =(albumId) => {
+export const fetchArtistFromServer =(artistId) => {
   return dispatch => {
     Promise
       .all([
@@ -39,6 +39,6 @@ export const fetchAlbumFromServer =(albumId) => {
         axios.get(`/api/artists/${artistId}/songs`)
       ])
       .then(res => res.map(r => r.data))
-      .then(data => dispatch(receiveAlbumFromServer(...data)));
+      .then(data => dispatch(receiveArtistFromServer(...data)));
   }
 }
